@@ -1,7 +1,7 @@
 from tkinter import *
 import mysql.connector
-
 from tkinter import messagebox
+
 def check_login(username,password,acc_type):
     db = mysql.connector.connect(
         host="localhost",
@@ -98,6 +98,34 @@ def backtomainscreen(frame):
         widget.destroy()
     mainframe.pack()
 
+def trainee_menu(username,frame):
+    for widget in frame.winfo_children():
+        widget.destroy()
+    frametrainee=Frame(my_window)
+    frametrainee.pack()
+    prompt_1=Label(
+        frametrainee,
+        text='Welcome!',
+        background='#a5e8f2',  # bg parameter can be used instead of background parameter as a short hand.
+        foreground='white',  # fg parameter can be used instead of foreground parameter as a short hand.
+        font=('Ariel', 14),
+    )
+    db = mysql.connector.connect(
+        host="localhost",
+        user="root",
+        password="Bazinga21!",
+        database="trainingmanagementsys"
+    )
+    cursor = db.cursor()
+    query = "SELECT * FROM trainee JOIN login WHERE username = %s"
+    values = (username)
+    cursor.execute(query, values)
+    result = cursor.fetchall()
+    for row in result:
+            tk.Label(frametrainee, text=f"Username: {row['username']}").pack()
+            #tk.Label(frametrainee, text=f"Password: {row['password']}").pack()
+    cursor.close()
+    db.close()
 
 
 my_window.mainloop()
