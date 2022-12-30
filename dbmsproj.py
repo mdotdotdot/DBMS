@@ -2,7 +2,7 @@ from tkinter import *
 import mysql.connector
 from tkinter import messagebox
 
-def check_login(username,password,acc_type):
+def check_login(mainframe,username,password,acc_type):
     db = mysql.connector.connect(
         host="localhost",
         user="root",
@@ -17,7 +17,7 @@ def check_login(username,password,acc_type):
     user = cursor.fetchone()
     if user is not None:
         print("valid")
-        #if trainee, func for trainee menu
+        logged_in(acc_type,mainframe,username)
     else:
         print("not valid")
     cursor.close()
@@ -41,17 +41,17 @@ def log_in_window():
     loginprompt = Label(
     mainframe,
     text='Log in',
-    background='white',  
-    foreground='#071654',  
+    background='white',
+    foreground='#071654',
     font=('Ariel', 15),
-    ) 
+    )
     loginprompt.pack()
     prompt1 = Label(mainframe,text='Log-in as trainee, instructor or administrator:')
     prompt1.pack(padx=0,pady=10)
     options1 = ["instructor","trainee","administrator"]
     clicked1 = StringVar()
     clicked1.set( "trainee" )
-    drop1 = OptionMenu(mainframe , clicked1 , *options1 ) 
+    drop1 = OptionMenu(mainframe , clicked1 , *options1 )
     drop1.pack(padx=10,pady=10)
     username_label = Label(mainframe,text="Username:")
     username_entry = Entry(mainframe)
@@ -63,7 +63,7 @@ def log_in_window():
         activebackground='#0f2da6',
         background='#c5e0ed',
         foreground='#5f466b',
-        command=lambda:check_login(username_entry.get(),password_entry.get(),clicked1.get())
+        command=lambda:check_login(mainframe,username_entry.get(),password_entry.get(),clicked1.get())
         ) #add command
     username_label.pack()
     username_entry.pack()
@@ -78,29 +78,26 @@ log_in_window()
 # log_in_button = Button(
 #     mainframe,
 #     activebackground='#0f2da6',
-#     text='Log in', 
+#     text='Log in',
 #     background='#c5e0ed',
 #     foreground='#5f466b',
 #     font=('Ariel',14),
 #     command=command_for_loginbutton
-#     )  
+#     )
 # log_in_button.pack(padx=10,pady=10)
 
-def logged_in(usertype,mainframe):
+def logged_in(usertype,mainframe,username):
     for widget in mainframe.winfo_children():
         widget.destroy()
-    if usertype=='Trainee':
-        #fetch query from db for all peronsal info + course taken
-        filler=1
+    if usertype=='trainee':
+        trainee_menu(username)
 
 def backtomainscreen(frame):
     for widget in frame.winfo_children():
         widget.destroy()
     mainframe.pack()
 
-def trainee_menu(username,frame):
-    for widget in frame.winfo_children():
-        widget.destroy()
+def trainee_menu(username):
     frametrainee=Frame(my_window)
     frametrainee.pack()
     prompt_1=Label(
@@ -110,6 +107,7 @@ def trainee_menu(username,frame):
         foreground='white',  # fg parameter can be used instead of foreground parameter as a short hand.
         font=('Ariel', 14),
     )
+    prompt_1.pack()
     db = mysql.connector.connect(
         host="localhost",
         user="root",
@@ -117,12 +115,12 @@ def trainee_menu(username,frame):
         database="trainingmanagementsys"
     )
     cursor = db.cursor()
-    query = "SELECT * FROM trainee JOIN login WHERE username = %s"
-    values = (username)
-    cursor.execute(query, values)
+    query = "SELECT t_id,first_name,last_name,contact_no,email,joining_date,address,time_slot,course_name FROM (((trainee JOIN login using (username)) JOIN session using(session_id)) JOIN course using(course_id)) WHERE username ='"+username+"'"
+    # values = (username)
+    cursor.execute(query)
     result = cursor.fetchall()
     for row in result:
-            tk.Label(frametrainee, text=f"Username: {row['username']}").pack()
+            Label(frametrainee, text=result).pack()
             #tk.Label(frametrainee, text=f"Password: {row['password']}").pack()
     cursor.close()
     db.close()
