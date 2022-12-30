@@ -2,6 +2,11 @@ from tkinter import *
 import mysql.connector
 from tkinter import messagebox
 
+def log_out(frame):
+    frame.pack_forget()
+    mainframe.pack()
+
+
 def check_login(mainframe,username,password,acc_type):
     db = mysql.connector.connect(
         host="localhost",
@@ -119,11 +124,46 @@ def trainee_menu(username):
     # values = (username)
     cursor.execute(query)
     result = cursor.fetchall()
-    for row in result:
-            Label(frametrainee, text=result).pack()
-            #tk.Label(frametrainee, text=f"Password: {row['password']}").pack()
+    tidlabel1 = Label(frametrainee,text='Trainee ID:')
+    tidlabel.pack()
+    tidlabel2 = Label(frametrainee,text=result[0][0])
+    tidlabel2.pack()
+    fname1 = Label(frametrainee,text='Name: ')
+    fname1.pack()
+    fname2 = Label(frametrainee,text=result[0][1]+result[0][2])
+    fname2.pack()
+    contact1 = Label(frametrainee,text='Contact Number:')
+    contact1.pack()
+    contact2 = Label(frametrainee,text=result[0][3])
+    contact2.pack()
+    email1 = Label(frametrainee,text='Email:')
+    email1.pack()
+    email2 = Label(frametrainee,text=result[0][4])
+    email2.pack()
+    joiningdate1 = Label(frametrainee,text='Joining Date:')
+    joiningdate1.pack()
+    joiningdate2 = Label(frametrainee,text=result[0][5])
+    joiningdate2.pack()
+    address1 = Label(frametrainee,text='Address')
+    addressl.pack()
+    address2 = Label(frametrainee,text=result[0][6])
+    address2.pack()
+    time_slot1 = Label(frametrainee,text='Time Slot:')
+    time_slot1.pack()
+    time_slot2 = Label(frametrainee,text=result[0][7])
+    time_slot2.pack()
+    coursename1 = Label(frametrainee,text='Course Name:')
+    coursename1.pack()
+    coursename2 = Label(frametrainee,text=result[0][8])
+    coursename2.pack()
     cursor.close()
     db.close()
+
+    logoutbutton = Button(
+        frametrainee,
+        text = 'Log out',
+        command=lambda: logoutbutton(frametrainee)
+    )
 
 
 my_window.mainloop()
