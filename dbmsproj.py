@@ -23,10 +23,9 @@ def check_login(mainframe,username,password,acc_type):
     cursor.execute(query, values)
     user = cursor.fetchone()
     if user is not None:
-        print("valid")
         logged_in(acc_type,mainframe,username)
     else:
-        print("not valid")
+        messagebox.showerror('Error', 'Invalid Login')
     cursor.close()
     db.close()
 
@@ -50,10 +49,15 @@ def close_courses_back(frame,username,acc_type):
         trainee_menu(username)
     elif acc_type=='instructor':
         instructor_menu(username)
+    elif acc_type=='administrator':
+        admin_menu()
 
-def close_tt(frame,username):
+def close_tt(frame,username,acc_type):
     frame.pack_forget()
-    instructor_menu(username)
+    if acc_type=='instructor':
+        instructor_menu(username)
+    elif acc_type=='administrator':
+        admin_menu()
 
 
 def log_in_window():
@@ -93,7 +97,60 @@ def log_in_window():
 
 log_in_window()
 
-def all_trainees_view(frame,username):
+def all_instructors_view(frame,username,acc_type):
+    frame.pack_forget()
+    sframe=Frame(my_window)
+    sframe.pack()
+    db = connect()
+    cursor = db.cursor()
+    query = "SELECT * FROM instructor"
+    cursor.execute(query)
+    result = cursor.fetchall()
+    head1 = Label(sframe, text='Instructor ID: ')
+    head1.grid(row=0, column=0)
+    head2 = Label(sframe, text='Name: ')
+    head2.grid(row=0, column=1)
+    head3 = Label(sframe, text='Email: ')
+    head3.grid(row=0, column=2)
+    head4 = Label(sframe, text='Contact Number: ')
+    head4.grid(row=0, column=3)
+    head5 = Label(sframe, text='Address: ')
+    head5.grid(row=0, column=4)
+    head6 = Label(sframe, text='Joining Date: ')
+    head6.grid(row=0, column=5)
+    head7 = Label(sframe, text='Username: ')
+    head7.grid(row=0, column=6)
+    for i in range(0,len(result)):
+        tail1 = Label(sframe, text=result[i][0])
+        tail1.grid(row=i+1,column=0)
+        tail2 = Label(sframe, text=result[i][1])
+        tail2.grid(row=i+1,column=1)
+        tail3 = Label(sframe, text=result[i][2])
+        tail3.grid(row=i+1,column=2)
+        tail4 = Label(sframe, text=result[i][3])
+        tail4.grid(row=i+1,column=3)
+        tail5 = Label(sframe, text=result[i][4])
+        tail5.grid(row=i+1, column=4)
+        tail6 = Label(sframe, text=result[i][5])
+        tail6.grid(row=i+1, column=5)
+        tail7 = Label(sframe, text=result[i][6])
+        tail7.grid(row=i+1, column=6)
+    cursor.close()
+    db.close()
+    backbuttonmalih = Button(
+        sframe,
+        text='Back',
+        command=lambda: close_tt(sframe, 'admin', 'administrator')
+    )
+    backbuttonmalih.grid(row=30, column=4)
+    logoutbuttonmalih = Button(
+        sframe,
+        text='Log out',
+        command=lambda: log_out(sframe)
+    )
+    logoutbuttonmalih.grid(row=35, column=4)
+
+def all_trainees_view(frame,username,acc_type):
     frame.pack_forget()
     alltrainframe=Frame(my_window)
     alltrainframe.pack()
@@ -145,7 +202,7 @@ def all_trainees_view(frame,username):
     backbuttonslay = Button(
         alltrainframe,
         text='Back',
-        command=lambda: close_tt(alltrainframe,username)
+        command=lambda: close_tt(alltrainframe,username,acc_type)
     )
     backbuttonslay.grid(row=40, column=4)
     logoutbuttonslay = Button(
@@ -193,7 +250,7 @@ def teaching_teams_view(frame,username):
     backbuttonnew = Button(
         tt,
         text='Back',
-        command=lambda: close_tt(tt, username)
+        command=lambda: close_tt(tt, username,'instructor')
     )
     backbuttonnew.grid(row=7, column=8)
     logoutbuttonnew = Button(
@@ -202,6 +259,43 @@ def teaching_teams_view(frame,username):
         command=lambda: log_out(tt)
     )
     logoutbuttonnew.grid(row=8, column=8)
+
+def session_details_view(frame):
+    frame.pack_forget()
+    sessionsframe=Frame(my_window)
+    sessionsframe.pack()
+    db=connect()
+    cursor=db.cursor()
+    query="SELECT * FROM session"
+    cursor.execute(query)
+    result=cursor.fetchall()
+    head1 = Label(sessionsframe, text='Session ID: ')
+    head1.grid(row=0, column=0)
+    head2 = Label(sessionsframe, text='Time Slot: ')
+    head2.grid(row=0, column=1)
+    head3 = Label(sessionsframe, text='Course ID: ')
+    head3.grid(row=0, column=2)
+    for i in range(0,len(result)):
+        tail1 = Label(sessionsframe, text=result[i][0])
+        tail1.grid(row=i+1,column=0)
+        tail2 = Label(sessionsframe, text=result[i][1])
+        tail2.grid(row=i+1,column=1)
+        tail3 = Label(sessionsframe, text=result[i][2])
+        tail3.grid(row=i+1,column=2)
+    cursor.close()
+    db.close()
+    backbuttonqudsia = Button(
+        sessionsframe,
+        text='Back',
+        command=lambda: close_tt(sessionsframe, 'admin', 'administrator')
+    )
+    backbuttonqudsia.grid(row=30, column=3)
+    logoutbuttonqudsia = Button(
+        sessionsframe,
+        text='Log out',
+        command=lambda: log_out(sessionsframe)
+    )
+    logoutbuttonqudsia.grid(row=40, column=3)
 
 def course_details_view(frame,username,acc_type):
     frame.pack_forget()
@@ -251,12 +345,50 @@ def logged_in(usertype,mainframe,username):
         trainee_menu(username)
     elif usertype=='instructor':
         instructor_menu(username)
-    
+    elif usertype=='administrator':
+        admin_menu()
+
 
 def backtomainscreen(frame):
     for widget in frame.winfo_children():
         widget.destroy()
     mainframe.pack()
+
+def admin_menu():
+    adminframe=Frame(my_window)
+    adminframe.pack()
+    prompt_a = Label(
+        adminframe,
+        text='Welcome!',
+        background='#a5e8f2',  # bg parameter can be used instead of background parameter as a short hand.
+        foreground='white',  # fg parameter can be used instead of foreground parameter as a short hand.
+        font=('Ariel', 14),
+    )
+    prompt_a.grid(row=0, column=2)
+    look_at_trainee=Button(
+        adminframe,
+        text='View Trainees',
+        command=lambda:all_trainees_view(adminframe,'admin','administrator')
+    )
+    look_at_trainee.grid(row=10, column=2)
+    look_at_instructors=Button(
+        adminframe,
+        text='View Instructors',
+        command=lambda:all_instructors_view(adminframe,'admin','administrator')
+    )
+    look_at_instructors.grid(row=15,column=2)
+    look_at_courses=Button(
+        adminframe,
+        text='View Courses',
+        command=lambda: course_details_view(adminframe,'admin','administrator')
+    )
+    look_at_courses.grid(row=20,column=2)
+    look_at_sessions=Button(
+        adminframe,
+        text='View Sessions',
+        command=lambda: session_details_view(adminframe)
+    )
+    look_at_sessions.grid(row=25,column=2)
 
 def instructor_menu(username):
     frameinstructor=Frame(my_window)
@@ -268,7 +400,7 @@ def instructor_menu(username):
         foreground='white',  # fg parameter can be used instead of foreground parameter as a short hand.
         font=('Ariel', 14),
     )
-    prompt_1.grid(row=0, column=3)
+    prompt_1.grid(row=0, column=2)
     db = connect()
     cursor = db.cursor()
     query = "SELECT distinct instructor_name,email,contact_no,address,joining_date,username FROM instructor join teaching_team using (instructor_id) WHERE username='"+username+"'"
@@ -306,7 +438,7 @@ def instructor_menu(username):
     all_trainees_info_button=Button(
         frameinstructor,
         text='All Trainees Info',
-        command=lambda: all_trainees_view(frameinstructor,username)
+        command=lambda: all_trainees_view(frameinstructor,username,'instructor')
     )
     all_trainees_info_button.grid(row=4,column=2)
     teaching_team_info_button=Button(
