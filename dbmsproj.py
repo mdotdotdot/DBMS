@@ -44,6 +44,18 @@ title_label.pack(padx=200,pady=80)
 mainframe = Frame(my_window)
 mainframe.pack()
 
+def close_courses_back(frame,username,acc_type):
+    frame.pack_forget()
+    if acc_type=='trainee':
+        trainee_menu(username)
+    elif acc_type=='instructor':
+        instructor_menu(username)
+
+def close_tt(frame,username):
+    frame.pack_forget()
+    instructor_menu(username)
+
+
 def log_in_window():
     loginprompt = Label(
     mainframe,
@@ -81,8 +93,117 @@ def log_in_window():
 
 log_in_window()
 
+def all_trainees_view(frame,username):
+    frame.pack_forget()
+    alltrainframe=Frame(my_window)
+    alltrainframe.pack()
+    db=connect()
+    cursor=db.cursor()
+    query = "SELECT * FROM trainee"
+    cursor.execute(query)
+    result = cursor.fetchall()
+    head1 = Label(alltrainframe, text='Trainee Id: ')
+    head1.grid(row=0, column=0)
+    head2 = Label(alltrainframe, text='First Name: ')
+    head2.grid(row=0, column=1)
+    head3 = Label(alltrainframe, text='Last Name: ')
+    head3.grid(row=0, column=2)
+    head4 = Label(alltrainframe, text='Contact Number: ')
+    head4.grid(row=0, column=3)
+    head5 = Label(alltrainframe, text='Email: ')
+    head5.grid(row=0, column=4)
+    head6 = Label(alltrainframe, text='Joining Date: ')
+    head6.grid(row=0, column=5)
+    head7 = Label(alltrainframe, text='Address: ')
+    head7.grid(row=0, column=6)
+    head8 = Label(alltrainframe, text='Username: ')
+    head8.grid(row=0, column=7)
+    head9 = Label(alltrainframe, text='Session ID: ')
+    head9.grid(row=0, column=8)
+    for i in range(0,len(result)):
+        tail1 = Label(alltrainframe, text=result[i][0])
+        tail1.grid(row=i+1,column=0)
+        tail2 = Label(alltrainframe, text=result[i][1])
+        tail2.grid(row=i+1,column=1)
+        tail3 = Label(alltrainframe, text=result[i][2])
+        tail3.grid(row=i+1,column=2)
+        tail4 = Label(alltrainframe, text=result[i][3])
+        tail4.grid(row=i+1,column=3)
+        tail5 = Label(alltrainframe, text=result[i][4])
+        tail5.grid(row=i+1, column=4)
+        tail6 = Label(alltrainframe, text=result[i][5])
+        tail6.grid(row=i+1, column=5)
+        tail7 = Label(alltrainframe, text=result[i][6])
+        tail7.grid(row=i+1, column=6)
+        tail8 = Label(alltrainframe, text=result[i][7])
+        tail8.grid(row=i+1, column=7)
+        tail9 = Label(alltrainframe, text=result[i][8])
+        tail9.grid(row=i+1, column=8)
 
-def course_details_view(frame):
+    cursor.close()
+    db.close()
+    backbuttonslay = Button(
+        alltrainframe,
+        text='Back',
+        command=lambda: close_tt(alltrainframe,username)
+    )
+    backbuttonslay.grid(row=40, column=4)
+    logoutbuttonslay = Button(
+        alltrainframe,
+        text='Log out',
+        command=lambda: log_out(alltrainframe)
+    )
+    logoutbuttonslay.grid(row=45, column=4)
+
+
+def teaching_teams_view(frame,username):
+    frame.pack_forget()
+    tt=Frame(my_window)
+    tt.pack()
+    db = connect()
+    cursor = db.cursor()
+    query = "SELECT team_id,course_id,course_name,description,duration_months from (instructor join teaching_team using(instructor_id)) join course using (team_id) where username='"+username+"'"
+    cursor.execute(query)
+    result = cursor.fetchall()
+    head1=Label(tt, text='Team Id: ')
+    head1.grid(row=0,column=0)
+    head2=Label(tt,text='Course Id: ')
+    head2.grid(row=0, column=1)
+    head3 = Label(tt, text='Course Name: ')
+    head3.grid(row=0, column=2)
+    head4 = Label(tt, text='Description: ')
+    head4.grid(row=0, column=3)
+    head5 = Label(tt, text='Duration in Months: ')
+    head5.grid(row=0, column=4)
+    for i in range(0,len(result)):
+        tail1 = Label(tt, text=result[i][0])
+        tail1.grid(row=i+1,column=0)
+        tail2 = Label(tt, text=result[i][1])
+        tail2.grid(row=i+1,column=1)
+        tail3 = Label(tt, text=result[i][2])
+        tail3.grid(row=i+1,column=2)
+        tail4 = Label(tt, text=result[i][3])
+        tail4.grid(row=i+1,column=3)
+        tail5 = Label(tt, text=result[i][4])
+        tail5.grid(row=i + 1, column=4)
+
+    cursor.close()
+    db.close()
+
+    backbuttonnew = Button(
+        tt,
+        text='Back',
+        command=lambda: close_tt(tt, username)
+    )
+    backbuttonnew.grid(row=7, column=8)
+    logoutbuttonnew = Button(
+        tt,
+        text='Log out',
+        command=lambda: log_out(tt)
+    )
+    logoutbuttonnew.grid(row=8, column=8)
+
+def course_details_view(frame,username,acc_type):
     frame.pack_forget()
     coursesframe = Frame(my_window)
     coursesframe.pack()
@@ -91,36 +212,122 @@ def course_details_view(frame):
     query = "SELECT * FROM course"
     cursor.execute(query)
     result = cursor.fetchall()
+    courseid1 = Label(coursesframe, text='Course Id:')
+    courseid1.grid(row=0, column=0)
+    coursename1 = Label(coursesframe, text='Course Name:')
+    coursename1.grid(row=0, column=1)
+    coursedesc1 = Label(coursesframe, text='Course Description:')
+    coursedesc1.grid(row=0, column=2)
+    coursedur1 = Label(coursesframe, text='Course Duration:')
+    coursedur1.grid(row=0, column=3)
     for i in range(0,len(result)):
-        courseid1 = Label(coursesframe, text='Course Id:')
-        courseid1.pack()
         courseid1 = Label(coursesframe, text=result[i][0])
-        courseid1.pack()
-        coursename1 = Label(coursesframe, text='Course Name:')
-        coursename1.pack()
+        courseid1.grid(row=i+1,column=0)
         coursename2 = Label(coursesframe, text=result[i][1])
-        coursename2.pack()
-        coursedesc1 = Label(coursesframe, text='Course Description:')
-        coursedesc1.pack()
+        coursename2.grid(row=i+1,column=1)
         coursedesc2 = Label(coursesframe, text=result[i][2])
-        coursedesc2.pack()
-        coursedur1 = Label(coursesframe, text='Course Duration:')
-        coursedur1.pack()
+        coursedesc2.grid(row=i+1,column=2)
         coursedur2 = Label(coursesframe, text=result[i][3])
-        coursedur2.pack()
+        coursedur2.grid(row=i+1,column=3)
 
     cursor.close()
     db.close()
+    backbutton = Button(
+        coursesframe,
+        text='Back',
+        command=lambda:close_courses_back(coursesframe,username,acc_type)
+    )
+    backbutton.grid(row=7,column=8)
+    logoutbutton2 = Button(
+        coursesframe,
+        text='Log out',
+        command=lambda: log_out(coursesframe)
+    )
+    logoutbutton2.grid(row=8,column=8)
 
 def logged_in(usertype,mainframe,username):
     mainframe.pack_forget()
     if usertype=='trainee':
         trainee_menu(username)
+    elif usertype=='instructor':
+        instructor_menu(username)
+    
 
 def backtomainscreen(frame):
     for widget in frame.winfo_children():
         widget.destroy()
     mainframe.pack()
+
+def instructor_menu(username):
+    frameinstructor=Frame(my_window)
+    frameinstructor.pack()
+    prompt_1 = Label(
+        frameinstructor,
+        text='Welcome!',
+        background='#a5e8f2',  # bg parameter can be used instead of background parameter as a short hand.
+        foreground='white',  # fg parameter can be used instead of foreground parameter as a short hand.
+        font=('Ariel', 14),
+    )
+    prompt_1.grid(row=0, column=3)
+    db = connect()
+    cursor = db.cursor()
+    query = "SELECT distinct instructor_name,email,contact_no,address,joining_date,username FROM instructor join teaching_team using (instructor_id) WHERE username='"+username+"'"
+    # values = (username)
+    cursor.execute(query)
+    result = cursor.fetchall()
+
+    tidlabel1 = Label(frameinstructor, text='Instructor Name: ')
+    tidlabel1.grid(row=1, column=0)
+    fname1 = Label(frameinstructor, text='Email: ')
+    fname1.grid(row=1, column=1)
+    contact1 = Label(frameinstructor, text='Contact Number:')
+    contact1.grid(row=1, column=2)
+    email1 = Label(frameinstructor, text='Address:')
+    email1.grid(row=1, column=3)
+    joiningdate1 = Label(frameinstructor, text='Joining Date:')
+    joiningdate1.grid(row=1, column=4)
+    address1 = Label(frameinstructor, text='Username: ')
+    address1.grid(row=1, column=5)
+    tidlabel2 = Label(frameinstructor, text=result[0][0])
+    tidlabel2.grid(row=2, column=0)
+    fname2 = Label(frameinstructor, text=result[0][1])
+    fname2.grid(row=2, column=1)
+    contact2 = Label(frameinstructor, text=result[0][2])
+    contact2.grid(row=2, column=2)
+    email2 = Label(frameinstructor, text=result[0][3])
+    email2.grid(row=2, column=3)
+    joiningdate2 = Label(frameinstructor, text=result[0][4])
+    joiningdate2.grid(row=2, column=4)
+    address2 = Label(frameinstructor, text=result[0][5])
+    address2.grid(row=2, column=5)
+    cursor.close()
+    db.close()
+
+    all_trainees_info_button=Button(
+        frameinstructor,
+        text='All Trainees Info',
+        command=lambda: all_trainees_view(frameinstructor,username)
+    )
+    all_trainees_info_button.grid(row=4,column=2)
+    teaching_team_info_button=Button(
+        frameinstructor,
+        text='Teaching Team Details',
+        command=lambda: teaching_teams_view(frameinstructor,username)
+
+    )
+    teaching_team_info_button.grid(row=6,column=2)
+    coursedetailbutton2 = Button(
+        frameinstructor,
+        text='Course Details',
+        command=lambda: course_details_view(frameinstructor, username, 'instructor')
+    )
+    coursedetailbutton2.grid(row=8, column=2)
+    logoutbutton2 = Button(
+        frameinstructor,
+        text='Log out',
+        command=lambda: log_out(frameinstructor)
+    )
+    logoutbutton2.grid(row=10, column=2)
 
 def trainee_menu(username):
     frametrainee=Frame(my_window)
@@ -132,59 +339,60 @@ def trainee_menu(username):
         foreground='white',  # fg parameter can be used instead of foreground parameter as a short hand.
         font=('Ariel', 14),
     )
-    prompt_1.pack()
+    prompt_1.grid(row=0,column=0)
     db = connect()
     cursor = db.cursor()
     query = "SELECT t_id,first_name,last_name,contact_no,email,joining_date,address,time_slot,course_name FROM (((trainee JOIN login using (username)) JOIN session using(session_id)) JOIN course using(course_id)) WHERE username ='"+username+"'"
     # values = (username)
     cursor.execute(query)
     result = cursor.fetchall()
-    tidlabel1 = Label(frametrainee,text='Trainee ID:')
-    tidlabel1.pack()
-    tidlabel2 = Label(frametrainee,text=result[0][0])
-    tidlabel2.pack()
+
+    tidlabel1 = Label(frametrainee, text='Trainee ID:')
+    tidlabel1.grid(row=1, column=0)
     fname1 = Label(frametrainee,text='Name: ')
-    fname1.pack()
-    fname2 = Label(frametrainee,text=result[0][1]+result[0][2])
-    fname2.pack()
+    fname1.grid(row=1, column=1)
     contact1 = Label(frametrainee,text='Contact Number:')
-    contact1.pack()
-    contact2 = Label(frametrainee,text=result[0][3])
-    contact2.pack()
+    contact1.grid(row=1, column=2)
     email1 = Label(frametrainee,text='Email:')
-    email1.pack()
+    email1.grid(row=1, column=3)
+    joiningdate1 = Label(frametrainee, text='Joining Date:')
+    joiningdate1.grid(row=1, column=4)
+    address1 = Label(frametrainee, text='Address: ')
+    address1.grid(row=1, column=5)
+    time_slot1 = Label(frametrainee, text='Time Slot:')
+    time_slot1.grid(row=1, column=6)
+    coursename1 = Label(frametrainee, text='Course Name:')
+    coursename1.grid(row=1, column=7)
+    tidlabel2 = Label(frametrainee,text=result[0][0])
+    tidlabel2.grid(row=2, column=0)
+    fname2 = Label(frametrainee,text=result[0][1]+result[0][2])
+    fname2.grid(row=2, column=1)
+    contact2 = Label(frametrainee,text=result[0][3])
+    contact2.grid(row=2, column=2)
     email2 = Label(frametrainee,text=result[0][4])
-    email2.pack()
-    joiningdate1 = Label(frametrainee,text='Joining Date:')
-    joiningdate1.pack()
+    email2.grid(row=2, column=3)
     joiningdate2 = Label(frametrainee,text=result[0][5])
-    joiningdate2.pack()
-    address1 = Label(frametrainee,text='Address')
-    address1.pack()
+    joiningdate2.grid(row=2, column=4)
     address2 = Label(frametrainee,text=result[0][6])
-    address2.pack()
-    time_slot1 = Label(frametrainee,text='Time Slot:')
-    time_slot1.pack()
+    address2.grid(row=2, column=5)
     time_slot2 = Label(frametrainee,text=result[0][7])
-    time_slot2.pack()
-    coursename1 = Label(frametrainee,text='Course Name:')
-    coursename1.pack()
+    time_slot2.grid(row=2, column=6)
     coursename2 = Label(frametrainee,text=result[0][8])
-    coursename2.pack()
+    coursename2.grid(row=2, column=7)
     cursor.close()
     db.close()
 
     coursedetailbutton = Button(
         frametrainee,
         text = 'Course Details',
-        command= lambda: course_details_view(frametrainee)
+        command= lambda: course_details_view(frametrainee,username,'trainee')
     )
-    coursedetailbutton.pack()
+    coursedetailbutton.grid(row=3,column=3)
     logoutbutton = Button(
         frametrainee,
         text = 'Log out',
         command=lambda: log_out(frametrainee)
     )
-    logoutbutton.pack()
+    logoutbutton.grid(row=5,column=3)
 
 my_window.mainloop()
