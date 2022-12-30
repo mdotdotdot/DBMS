@@ -6,15 +6,17 @@ def log_out(frame):
     frame.pack_forget()
     mainframe.pack()
 
-
-def check_login(mainframe,username,password,acc_type):
+def connect():
     db = mysql.connector.connect(
         host="localhost",
         user="root",
         password="Bazinga21!",
         database="trainingmanagementsys"
     )
+    return db
 
+def check_login(mainframe,username,password,acc_type):
+    db = connect()
     cursor = db.cursor()
     query = "SELECT * FROM login WHERE username = %s AND password = %s AND account_type = %s"
     values = (username, password, acc_type)
@@ -80,20 +82,38 @@ def log_in_window():
 log_in_window()
 
 
-# log_in_button = Button(
-#     mainframe,
-#     activebackground='#0f2da6',
-#     text='Log in',
-#     background='#c5e0ed',
-#     foreground='#5f466b',
-#     font=('Ariel',14),
-#     command=command_for_loginbutton
-#     )
-# log_in_button.pack(padx=10,pady=10)
+def course_details_view(frame):
+    frame.pack_forget()
+    coursesframe = Frame(my_window)
+    coursesframe.pack()
+    db = connect()
+    cursor = db.cursor()
+    query = "SELECT * FROM course"
+    cursor.execute(query)
+    result = cursor.fetchall()
+    for i in range(0,len(result)):
+        courseid1 = Label(coursesframe, text='Course Id:')
+        courseid1.pack()
+        courseid1 = Label(coursesframe, text=result[i][0])
+        courseid1.pack()
+        coursename1 = Label(coursesframe, text='Course Name:')
+        coursename1.pack()
+        coursename2 = Label(coursesframe, text=result[i][1])
+        coursename2.pack()
+        coursedesc1 = Label(coursesframe, text='Course Description:')
+        coursedesc1.pack()
+        coursedesc2 = Label(coursesframe, text=result[i][2])
+        coursedesc2.pack()
+        coursedur1 = Label(coursesframe, text='Course Duration:')
+        coursedur1.pack()
+        coursedur2 = Label(coursesframe, text=result[i][3])
+        coursedur2.pack()
+
+    cursor.close()
+    db.close()
 
 def logged_in(usertype,mainframe,username):
-    for widget in mainframe.winfo_children():
-        widget.destroy()
+    mainframe.pack_forget()
     if usertype=='trainee':
         trainee_menu(username)
 
@@ -113,19 +133,14 @@ def trainee_menu(username):
         font=('Ariel', 14),
     )
     prompt_1.pack()
-    db = mysql.connector.connect(
-        host="localhost",
-        user="root",
-        password="Bazinga21!",
-        database="trainingmanagementsys"
-    )
+    db = connect()
     cursor = db.cursor()
     query = "SELECT t_id,first_name,last_name,contact_no,email,joining_date,address,time_slot,course_name FROM (((trainee JOIN login using (username)) JOIN session using(session_id)) JOIN course using(course_id)) WHERE username ='"+username+"'"
     # values = (username)
     cursor.execute(query)
     result = cursor.fetchall()
     tidlabel1 = Label(frametrainee,text='Trainee ID:')
-    tidlabel.pack()
+    tidlabel1.pack()
     tidlabel2 = Label(frametrainee,text=result[0][0])
     tidlabel2.pack()
     fname1 = Label(frametrainee,text='Name: ')
@@ -145,7 +160,7 @@ def trainee_menu(username):
     joiningdate2 = Label(frametrainee,text=result[0][5])
     joiningdate2.pack()
     address1 = Label(frametrainee,text='Address')
-    addressl.pack()
+    address1.pack()
     address2 = Label(frametrainee,text=result[0][6])
     address2.pack()
     time_slot1 = Label(frametrainee,text='Time Slot:')
@@ -159,11 +174,17 @@ def trainee_menu(username):
     cursor.close()
     db.close()
 
+    coursedetailbutton = Button(
+        frametrainee,
+        text = 'Course Details',
+        command= lambda: course_details_view(frametrainee)
+    )
+    coursedetailbutton.pack()
     logoutbutton = Button(
         frametrainee,
         text = 'Log out',
-        command=lambda: logoutbutton(frametrainee)
+        command=lambda: log_out(frametrainee)
     )
-
+    logoutbutton.pack()
 
 my_window.mainloop()
